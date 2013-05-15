@@ -56,10 +56,9 @@
         <script type="text/html" id="template-company">
         <li class="company-${id}">
             <span class="info">
-                <a href="http://bizvizz.com/company/${id}">${name}</a>
-                in ${hq_city}, ${hq_state}
+                <a onclick="openInBrowser('http://bizvizz.com/company/${id}');">${name}</a>
+                in ${hq_city} ${hq_state}
             </span>
-            <span class="score">${weight} %</span>
         </li>
         </script>
     </body>

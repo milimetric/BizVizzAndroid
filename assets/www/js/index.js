@@ -42,6 +42,7 @@ var app = {
     },
     start: function(){
         
+        
         $('a.picture').on('click', function(event){
             event.preventDefault();
             console.log('getting picture, not over 600px');
@@ -174,4 +175,11 @@ var app = {
             }
         };
     }
+};
+
+
+// set up company links to open up in web browser
+function openInBrowser(href){
+    // TODO: get links to open externally
+    navigator.app.loadUrl(href, { openExternal:true });
 };
