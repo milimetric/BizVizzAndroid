@@ -42,18 +42,20 @@ var app = {
     },
     start: function(){
         
-        $('a.picture').on('click', function(){
-            console.log('getting picture');
+        $('a.picture').on('click', function(event){
+            event.preventDefault();
+            console.log('getting picture, not over 600px');
             navigator.camera.getPicture(cameraSuccess, fail, {
                 quality: 80,
-                destinationType: navigator.camera.DestinationType.FILE_URI
+                destinationType: navigator.camera.DestinationType.FILE_URI,
+                targetWidth: 600,
+                targetHeight: 600
             });
         });
         
         
         function cameraSuccess(imageUri){
             imagePath = imageUri.replace('file://', '');
-            // TODO: show a thumbnail of the image and a spinner showing that it's waiting for results
             console.log('snapped an image: ' + imagePath);
             
             var options = new FileUploadOptions();
@@ -76,8 +78,10 @@ var app = {
             var fileTransfer = new FileTransfer();
             fileTransfer.upload(imagePath, 'http://api.iqengines.com/v1.2/query/', function(){
                 console.log('query call completed for: ' + data.api_sig);
+                data.imageUri = imageUri;
                 iqeQueries[data.api_sig] = data;
                 
+                $.tmpl($('#template-search').html(), data).appendTo('ul.searchList')
             }, fail, options);
             
         };
@@ -97,20 +101,28 @@ var app = {
             $.post('http://api.iqengines.com/v1.2/update/', data)
                 .done(function(response){
                     console.log('got updates back: ' + JSON.stringify(response));
+                    
                     if (response.data && response.data.results){
                         var queryResults = response.data.results;
                         for (r in queryResults){
                             var q = queryResults[r];
+                            if (!q || !q.qid || !iqeQueries[q.qid]) { continue; }
+                            
                             iqeQueries[q.qid].labels = q.qid_data.labels;
+                            $('#'+q.qid+' span.label').text(q.qid_data.labels);
+                            $('#'+q.qid+' ul.companyList').append('<li>Searching Manufacturers</li>');
                             
                             // call BizVizz service now
-                            $.post('bizvizz', getBizVizzSearch(q.qid_data.labels), function(bizVizzResponse){
-                                // console.log('got companies for ' + q.qid + ': ' + bizVizzResponse.data.companies);
-                                iqeQueries[q.qid].companies = bizVizzResponse.data.companies;
-                                
-                                // and finally show the result
-                                // TODO: show result
-                            });
+                            $.get('http://api.bizvizz.com/company/explore', getBizVizzSearch(q.qid_data.labels))
+                                .done(function(bizVizzResponse){
+                                    companies = bizVizzResponse.data.companies;
+                                    iqeQueries[q.qid].companies = companies
+                                    
+                                    $('#'+q.qid+' ul.companyList').html('').append(
+                                        $.tmpl($('#template-company').html(), companies)
+                                    );
+                                })
+                                .fail(fail);
                         }
                     }
                 })
@@ -155,8 +167,11 @@ var app = {
         
         
         function fail(err){
-            // TODO: exception handling
-            console.error('failed: ' + JSON.stringify(err));
+            if (err.status == '0'){
+                console.log('probably the update call timing out');
+            } else {
+                console.error('failed: ' + JSON.stringify(err));
+            }
         };
     }
 };

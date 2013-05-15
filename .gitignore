@@ -25,3 +25,6 @@ local.properties
 # secret config
 secret.config
 secrets.js
+
+# temp files
+*.swp

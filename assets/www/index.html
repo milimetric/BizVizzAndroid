@@ -28,11 +28,11 @@
         <title>BizVizz</title>
     </head>
     <body>
-        <div class="app">
-            <a class="btn btn-primary picture" href="#">Take Picture</a>
-            <ul class="companyList">
-            </ul>
+        <div class="app text-center">
+            <a class="btn btn-large picture" href="#">Snap Photo</a>
         </div>
+        <ul class="searchList unstyled">
+        </ul>
         
         <script type="text/javascript" src="js/cordova-2.7.0.js"></script>
         <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
@@ -45,9 +45,20 @@
         <script type="text/javascript">
             app.initialize();
         </script>
+        <script type="text/html" id="template-search">
+        <li id="${api_sig}">
+            <span class="thumb"><img src="${imageUri}" alt="search image"/></span>
+            <span class="label">Searching ...</span>
+            <ul class="companyList">
+            </ul>
+        </li>
+        </script>
         <script type="text/html" id="template-company">
-        <li>
-            <span class="info">${name} in ${hq_city}, ${hq_state}</span>
+        <li class="company-${id}">
+            <span class="info">
+                <a href="http://bizvizz.com/company/${id}">${name}</a>
+                in ${hq_city}, ${hq_state}
+            </span>
             <span class="score">${weight} %</span>
         </li>
         </script>
