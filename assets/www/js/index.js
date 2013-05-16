@@ -20,6 +20,7 @@
 // IMPORTANT: for this file to work, you must define iqeKey, iqeSecret, and bizVizzKey
 var deviceId = '';
 var iqeQueries = {};
+var stateSaveKey = 'searches';
 
 var app = {
     // Application Constructor
@@ -30,17 +31,51 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
+        document.addEventListener('pause', this.pause, false);
+        document.addEventListener('resume', this.resume, false);
     },
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
         deviceId = device.uuid;
         app.start();
     },
+    pause: function() {
+        window.localStorage.setItem(stateSaveKey, JSON.stringify(iqeQueries));
+    },
+    resume: function() {
+        lastState = window.localStorage.getItem(stateSaveKey);
+        if (!lastState) { return; }
+        try {
+            iqeQueries = JSON.parse(lastState);
+            app.refreshSearchList();
+        } catch (e) {
+            console.error('couldn\'t restore state: ' + e);
+        }
+    },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
         console.log('Received Event: ' + id);
     },
+    refreshSearchList: function() {
+        $('ul.searchList').empty();
+        for (qid in iqeQueries){
+            var data = iqeQueries[qid];
+            app.addSearchListItem(data);
+            app.addCompaniesToSearchListItem(qid, data.companies);
+        }
+    },
+    addSearchListItem: function(data) {
+        $.tmpl($('#template-search').html(), data).appendTo('ul.searchList')
+        $('#'+data.api_sig+' span.label').text(data.labels);
+    },
+    addCompaniesToSearchListItem: function(qid, companies) {
+        $('#'+qid+' ul.companyList').html('').append(
+            $.tmpl($('#template-company').html(), companies)
+        );
+    },
     start: function(){
+        // try resuming to bring back any state that might be saved
+        app.resume();
         
         
         $('a.picture').on('click', function(event){
@@ -82,7 +117,7 @@ var app = {
                 data.imageUri = imageUri;
                 iqeQueries[data.api_sig] = data;
                 
-                $.tmpl($('#template-search').html(), data).appendTo('ul.searchList')
+                app.addSearchListItem(data);
             }, fail, options);
             
         };
@@ -119,9 +154,7 @@ var app = {
                                     companies = bizVizzResponse.data.companies;
                                     iqeQueries[q.qid].companies = companies
                                     
-                                    $('#'+q.qid+' ul.companyList').html('').append(
-                                        $.tmpl($('#template-company').html(), companies)
-                                    );
+                                    app.addCompaniesToSearchListItem(q.qid, companies);
                                 })
                                 .fail(fail);
                         }

@@ -21,7 +21,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="format-detection" content="telephone=no" />
-        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=medium-dpi" />
         <!--link rel="stylesheet" type="text/css" href="css/bootstrap-responsive.min.css" /-->
         <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="css/index.css" />
@@ -31,8 +31,10 @@
         <div class="app text-center">
             <a class="btn btn-large picture" href="#">Snap Photo</a>
         </div>
-        <ul class="searchList unstyled">
-        </ul>
+        <div class="list">
+            <ul class="searchList unstyled">
+            </ul>
+        </div>
         
         <script type="text/javascript" src="js/cordova-2.7.0.js"></script>
         <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
@@ -57,7 +59,7 @@
         <li class="company-${id}">
             <span class="info">
                 <a onclick="openInBrowser('http://bizvizz.com/company/${id}');">${name}</a>
-                in ${hq_city} ${hq_state}
+                in ${hq_city}, ${hq_state}
             </span>
         </li>
         </script>

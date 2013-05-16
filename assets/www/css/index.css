@@ -1,5 +1,4 @@
-body { font-size: 1.2em; }
-div.app { margin-top: 2%; }
-ul.searchList { width: 100%; margin: 1%; }
-ul.searchList span.thumb { display: inline-block; width: 100%; }
+body { width: 100%; height: 100%; }
+div.app { width: 96%; margin: 0 2% 0 2%; padding: 15px 0 15px 0; position: fixed; top: 1%; left: 0; background-color: #79a204; border-radius: 4px; }
+ul.searchList { width: 96%; margin: 90px 2% 0 2%; }
 ul.searchList span.thumb img { width: 15%; }
