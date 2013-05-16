@@ -69,9 +69,11 @@ var app = {
         $('#'+data.api_sig+' span.label').text(data.labels);
     },
     addCompaniesToSearchListItem: function(qid, companies) {
-        $('#'+qid+' ul.companyList').html('').append(
-            $.tmpl($('#template-company').html(), companies)
-        );
+        if (qid && companies && companies.length){
+            $('#'+qid+' ul.companyList').html('').append(
+                $.tmpl($('#template-company').html(), companies)
+            );
+        }
     },
     start: function(){
         // try resuming to bring back any state that might be saved
