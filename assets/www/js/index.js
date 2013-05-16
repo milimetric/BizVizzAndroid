@@ -40,9 +40,14 @@ var app = {
         app.start();
     },
     pause: function() {
+        app.receivedEvent('pause');
+        app.saveState();
+    },
+    saveState: function() {
         window.localStorage.setItem(stateSaveKey, JSON.stringify(iqeQueries));
     },
     resume: function() {
+        app.receivedEvent('resume');
         lastState = window.localStorage.getItem(stateSaveKey);
         if (!lastState) { return; }
         try {
@@ -69,10 +74,9 @@ var app = {
         $('#'+data.api_sig+' span.label').text(data.labels);
     },
     addCompaniesToSearchListItem: function(qid, companies) {
-        if (qid && companies && companies.length){
-            $('#'+qid+' ul.companyList').html('').append(
-                $.tmpl($('#template-company').html(), companies)
-            );
+        $('#'+qid+' ul.companyList').html('')
+        if (companies && companies.length){
+            $.tmpl($('#template-company').html(), companies).appendTo('#'+qid+' ul.companyList');
         }
     },
     start: function(){
@@ -84,7 +88,7 @@ var app = {
             event.preventDefault();
             console.log('getting picture, not over 600px');
             navigator.camera.getPicture(cameraSuccess, fail, {
-                quality: 80,
+                quality: 50,
                 destinationType: navigator.camera.DestinationType.FILE_URI,
                 targetWidth: 600,
                 targetHeight: 600
@@ -99,7 +103,6 @@ var app = {
             var options = new FileUploadOptions();
             options.fileName = imagePath.substr(imagePath.lastIndexOf('/')+1);
             options.fileKey = 'img';
-            //options.mimeType = "image/jpeg";
 
             var data = {
                 api_key: iqeKey,
@@ -120,6 +123,7 @@ var app = {
                 iqeQueries[data.api_sig] = data;
                 
                 app.addSearchListItem(data);
+                app.saveState();
             }, fail, options);
             
         };
@@ -157,6 +161,7 @@ var app = {
                                     iqeQueries[q.qid].companies = companies
                                     
                                     app.addCompaniesToSearchListItem(q.qid, companies);
+                                    app.saveState();
                                 })
                                 .fail(fail);
                         }
@@ -203,11 +208,7 @@ var app = {
         
         
         function fail(err){
-            if (err.status == '0'){
-                console.log('probably the update call timing out');
-            } else {
-                console.error('failed: ' + JSON.stringify(err));
-            }
+            console.error('failed: ' + JSON.stringify(err));
         };
     }
 };
